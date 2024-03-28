@@ -365,6 +365,7 @@ app.get('/', async (req, res) => {
         }
 
         await browser.close();
+        console.log("Done - console")
         res.send("Done")
 
     } catch (error) {
