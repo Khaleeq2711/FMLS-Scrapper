@@ -364,23 +364,14 @@ const fetch = async () => {
         }
 
         await browser.close();
-        return 'Done with Scrapper'
+        process.exit();
 
     } catch (error) {
         console.log(error)
     }
 }
 
-app.get('/', async (req, res) => {
-    try {
-        const data = await fetch();
-        res.status(200).send(data);
-    } catch (error) {
-        // Handle errors
-        console.error('Error:', error);
-        res.status(500).send('An error occurred');
-    }
-});
+fetch();
 
 
 app.listen(port, () => {
