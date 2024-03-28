@@ -35,10 +35,13 @@ async function readCsvAndExtractMlsNumbers(filePath, targetMlsNumber) {
 const fetch = async () => {
     // const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
     console.log("Starting Scrapper")
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    console.log(formattedDate);
     const browser = await puppeteer.launch({
         headless: true,
         defaultViewport: null,
-        args: ['--start-maximized' , "--no-sandbox"]
+        args: ['--start-maximized', "--no-sandbox"]
 
     });
     const auth = new google.auth.GoogleAuth({
@@ -268,27 +271,23 @@ const fetch = async () => {
                 await new Promise(resolve => setTimeout(resolve, 5000));
 
                 try {
-                    
+                    await lastPage.waitForSelector(getSellerEmail);
+                    const getSellerEmailXpath = await lastPage.$(getSellerEmail);
+                    currSellerEmail = '';
+                    currSellerEmail = await lastPage.evaluate((getSellerEmailXpath) => {
+                        if (getSellerEmailXpath) {
+                            return getSellerEmailXpath.innerText;
+                        } else {
+                            console.log('Could not get Seller"s email');
+                            return '';
+                        }
+                    }, getSellerEmailXpath);
+                    console.log("Curr Seller Email: " + currSellerEmail);
                 } catch (error) {
-                    
+                    console.log("Could not get Seller's Email")
                 }
-
-                await lastPage.waitForSelector(getSellerEmail);
-                const getSellerEmailXpath = await lastPage.$(getSellerEmail);
                 await lastPage.waitForSelector(closeBtn);
                 const closeBtnXpath = await lastPage.$(closeBtn);
-
-                currSellerEmail = '';
-                currSellerEmail = await lastPage.evaluate((getSellerEmailXpath) => {
-                    if (getSellerEmailXpath) {
-                        return getSellerEmailXpath.innerText;
-                    } else {
-                        console.log('Could not get Seller"s email');
-                        return '';
-                    }
-                }, getSellerEmailXpath);
-                console.log("Curr Seller Email: " + currSellerEmail);
-
                 await lastPage.evaluate((closeBtnXpath) => {
                     if (closeBtnXpath) {
                         closeBtnXpath.click()
@@ -301,75 +300,87 @@ const fetch = async () => {
 
             await new Promise(resolve => setTimeout(resolve, 4000));
 
-
-            readCsvAndExtractMlsNumbers(filePath, currListNum)
-                .then(row => {
-                    let mlsNumber = row['MLS#'];
-                    let status = row['Status'];
-                    let streetNumber = row['Street Number'];
-                    let streetName = row['Street Name'];
-                    let streetSuffix = row['Street Suffix'];
-                    let listAgentFullName = row['List Agent Full Name'];
-                    let listAgentDirectWorkPhone = row['List Agent Direct Work Phone'];
-                    let sellingAgentFullName = row['Selling Agent Full Name'];
-                    let sellingAgentDirectWorkPhone = row['Selling Agent Direct Work Phone'];
-                    let streetAddress = streetNumber + " " + streetName + " " + streetSuffix;
-                    if (!sellingAgentFullName || !sellingAgentDirectWorkPhone) {
-                        throw new Error('Selling Agent Full Name or Direct Work Phone is missing');
-                    }
-
-                    googleSheets.spreadsheets.values.append({
-                        auth,
-                        spreadsheetId,
-                        range: "Sheet1!A:H",
-                        valueInputOption: "RAW",
-                        resource: {
-                            values: [
-                                [
-                                    mlsNumber,
-                                    status,
-                                    streetAddress,
-                                    listAgentFullName,
-                                    listAgentDirectWorkPhone,
-                                    sellingAgentFullName,
-                                    currSellerEmail,
-                                    sellingAgentDirectWorkPhone,
-                                ]
-                            ]
-                        },
-                    }, (err, response) => {
-                        if (err) {
-                            console.error('The API returned an error: ' + err);
-                        } else {
-                            console.log("Data appended successfully");
+            if (currSellerEmail != '') {
+                readCsvAndExtractMlsNumbers(filePath, currListNum)
+                    .then(row => {
+                        let mlsNumber = row['MLS#'];
+                        let status = row['Status'];
+                        let streetNumber = row['Street Number'];
+                        let streetName = row['Street Name'];
+                        let streetSuffix = row['Street Suffix'];
+                        let listAgentFullName = row['List Agent Full Name'];
+                        let listAgentDirectWorkPhone = row['List Agent Direct Work Phone'];
+                        let sellingAgentFullName = row['Selling Agent Full Name'];
+                        let sellingAgentDirectWorkPhone = row['Selling Agent Direct Work Phone'];
+                        let streetAddress = streetNumber + " " + streetName + " " + streetSuffix;
+                        if (!sellingAgentFullName || !sellingAgentDirectWorkPhone) {
+                            throw new Error('Selling Agent Full Name or Direct Work Phone is missing');
                         }
-                    });
-                })
-                .catch(err => {
-                    console.error('Error:', err.message);
-                });
 
-            await new Promise(resolve => setTimeout(resolve, 4000));
-            await page.waitForSelector(nextPage);
-            const nextPageXpath = await page.$(nextPage);
-            if (nextPageXpath) {
-                await nextPageXpath.click()
+                        googleSheets.spreadsheets.values.append({
+                            auth,
+                            spreadsheetId,
+                            range: "Sheet1!A:I",
+                            valueInputOption: "RAW",
+                            resource: {
+                                values: [
+                                    [
+                                        mlsNumber,
+                                        status,
+                                        streetAddress,
+                                        listAgentFullName,
+                                        listAgentDirectWorkPhone,
+                                        sellingAgentFullName,
+                                        currSellerEmail,
+                                        sellingAgentDirectWorkPhone,
+                                        formattedDate,
+                                    ]
+                                ]
+                            },
+                        }, (err, response) => {
+                            if (err) {
+                                console.error('The API returned an error: ' + err);
+                            } else {
+                                console.log("Data appended successfully");
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error:', err.message);
+                    });
             }
 
+
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            try {
+                await page.waitForSelector(nextPage);
+                const nextPageXpath = await page.$(nextPage);
+                if (nextPageXpath) {
+                    await nextPageXpath.click()
+                }
+            } catch (error) {
+                console.log("Could not navigate to next page")
+            }
         }
 
         await browser.close();
-        res.send('Done');
-        process.exit();
+        return 'Done with Scrapper'
 
     } catch (error) {
         console.log(error)
     }
 }
 
-
-fetch();
-
+app.get('/', async (req, res) => {
+    try {
+        const data = await fetch();
+        res.status(200).send(data);
+    } catch (error) {
+        // Handle errors
+        console.error('Error:', error);
+        res.status(500).send('An error occurred');
+    }
+});
 
 
 app.listen(port, () => {
