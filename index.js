@@ -221,7 +221,7 @@ app.get('/', async (req, res) => {
         if (MLSofListingsXpath) {
             await MLSofListingsXpath.click();
         }
-        for (let index = 0; index < totalNumofLists; index++) {
+        for (let index = 0; index < 5; index++) {
             SellerFlag = true;
             await new Promise(resolve => setTimeout(resolve, 4000));
             await page.waitForSelector(getCurrListNum);
