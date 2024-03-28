@@ -32,7 +32,8 @@ async function readCsvAndExtractMlsNumbers(filePath, targetMlsNumber) {
     });
 }
 
-const fetch = async () => {
+app.get('/', async (req, res) => {
+
     // const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
     console.log("Starting Scrapper")
     const today = new Date();
@@ -364,14 +365,13 @@ const fetch = async () => {
         }
 
         await browser.close();
-        process.exit();
+        res.send("Done")
 
     } catch (error) {
         console.log(error)
     }
-}
+});
 
-fetch();
 
 
 app.listen(port, () => {
