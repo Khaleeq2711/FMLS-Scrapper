@@ -39,7 +39,8 @@ const fetch = async () => {
         executablePath: executable,
         headless: true,
         defaultViewport: null,
-        args: ['--start-maximized']
+        args: ['--start-maximized' , "--no-sandbox"]
+
     });
     const auth = new google.auth.GoogleAuth({
         keyFile: "credentials.json",
@@ -85,7 +86,7 @@ const fetch = async () => {
     const exportButton = 'a#m_lbExport'
     const exportCsv = '*#m_btnExport'
     const goBack = '*#m_btnBack'
-    const MLSofListings = '#wrapperTable > td.dU39611m8 > span > a'
+    const MLSofListings = '#wrapperTable > td.d81m8 > span > a'
     const getCurrListNum = '#wrapperTable > tbody > tr > td > table > tbody > tr:nth-child(5) > td.d162m26 > span.wrapped-field'
     const clickSellerInfo = '#wrapperTable > tbody > tr > td > table > tbody > tr:nth-child(6) > td.d168m13 > span.formula.field.d168m19 > a'
     const getSellerEmail = 'td.d19m16 a'
@@ -100,6 +101,7 @@ const fetch = async () => {
     try {
         if (loginButtonXpath) {
             await loginButtonXpath.click();
+            console.log("Log in Button Clicked")
         }
 
         await page.waitForSelector(userNameBtn)
@@ -265,6 +267,12 @@ const fetch = async () => {
                 // Switch to the last tab (the newly opened tab)
                 const lastPage = pages[pages.length - 1];
                 await new Promise(resolve => setTimeout(resolve, 5000));
+
+                try {
+                    
+                } catch (error) {
+                    
+                }
 
                 await lastPage.waitForSelector(getSellerEmail);
                 const getSellerEmailXpath = await lastPage.$(getSellerEmail);
