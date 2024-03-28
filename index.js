@@ -33,10 +33,9 @@ async function readCsvAndExtractMlsNumbers(filePath, targetMlsNumber) {
 }
 
 const fetch = async () => {
-    const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
+    // const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
     console.log("Starting Scrapper")
     const browser = await puppeteer.launch({
-        executablePath: executable,
         headless: true,
         defaultViewport: null,
         args: ['--start-maximized' , "--no-sandbox"]
