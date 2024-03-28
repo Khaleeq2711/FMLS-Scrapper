@@ -33,7 +33,7 @@ async function readCsvAndExtractMlsNumbers(filePath, targetMlsNumber) {
 }
 
 const fetch = async () => {
-    const executable = path.join(__dirname, '.cache', 'puppeteer', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
+    const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
     console.log("Starting Scrapper")
     const browser = await puppeteer.launch({
         executablePath: executable,
@@ -51,7 +51,7 @@ const fetch = async () => {
     const spreadsheetId = process.env.SPREADSHEET_ID;
 
     const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+    // await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
     const myclient = await page.target().createCDPSession();
     const downloadPath = process.env.DOWNLOAD_PATH || path.resolve(__dirname, 'downloads');
     await myclient.send('Page.setDownloadBehavior', {
