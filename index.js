@@ -34,7 +34,6 @@ async function readCsvAndExtractMlsNumbers(filePath, targetMlsNumber) {
 
 app.get('/', async (req, res) => {
 
-    // const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
     console.log("Starting Scrapper")
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
