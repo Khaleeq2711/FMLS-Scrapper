@@ -222,7 +222,7 @@ app.get('/', async (req, res) => {
             await MLSofListingsXpath.click();
         }
         for (let index = 0; index < totalListings.length; index++) {
-            console.log("Total Listings : " + totalListings)
+            console.log("Total Listings : " + totalListings.length)
             console.log("Curent Listing : " + index)
             SellerFlag = true;
             await new Promise(resolve => setTimeout(resolve, 4000));
