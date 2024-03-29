@@ -1,5 +1,4 @@
 const express = require('express');
-const cron = require('node-cron');
 const puppeteer = require('puppeteer');
 // import { executablePath } from "puppeteer";
 const { google } = require("googleapis");
@@ -33,7 +32,9 @@ async function readCsvAndExtractMlsNumbers(filePath, targetMlsNumber) {
     });
 }
 
-const fetch = async () => {
+app.get('/', async (req, res) => {
+
+    // const executable = path.join(__dirname, 'node_modules', '.puppeteer_cache', 'chrome', 'win64-123.0.6312.58', 'chrome-win64' , 'chrome.exe');
     console.log("Starting Scrapper")
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
@@ -220,7 +221,9 @@ const fetch = async () => {
         if (MLSofListingsXpath) {
             await MLSofListingsXpath.click();
         }
-        for (let index = 0; index < 2; index++) {
+        for (let index = 0; index < totalListings.length; index++) {
+            console.log("Total Listings : " + totalListings)
+            console.log("Curent Listing : " + index)
             SellerFlag = true;
             await new Promise(resolve => setTimeout(resolve, 4000));
             await page.waitForSelector(getCurrListNum);
@@ -370,14 +373,6 @@ const fetch = async () => {
     } catch (error) {
         console.log(error)
     }
-}
-
-
-cron.schedule('*/10 * * * *', async () => {
-    await fetch();
-}, {
-    scheduled: true,
-    timezone: "America/New_York" // Set timezone to 'America/New_York' or any other timezone
 });
 
 
